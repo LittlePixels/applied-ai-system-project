@@ -3,10 +3,22 @@
 Answer each question in 3 to 5 sentences. Be specific and honest about what actually happened while you worked. This is about your process, not trying to sound perfect.
 
 ## 1. What was broken when you started?
+The first bugs i've encountered when the game started was in the settings. The Easy, Normal, and Difficult levels all had the wrong configuration for their levels. For instance,
+
+Hard should be range 1 100 5 attempts
+Easy should be attempts 8
+Normal should be range 1 to 50 with 6 attempts.
+
+These are not the correct configuration for the game, and are in the opposite of each category. This needs to be fixed in order for the game to be started properly.
 
 - What did the game look like the first time you ran it?
+UI wise the number game looks very basic. I do not see anything else wrong with it, other than the logic behind the hinting.
+
 - List at least two concrete bugs you noticed at the start  
   (for example: "the secret number kept changing" or "the hints were backwards").
+
+When the number is higher, it says to go lower. When the number is lower, it says to go higher.
+Score keeps going into negative when wrong attempt is done instead of keeping it at 0.
 
 ---
 
