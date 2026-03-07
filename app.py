@@ -1,6 +1,5 @@
-import random
 import streamlit as st
-from logic_utils import get_range_for_difficulty, parse_guess, check_guess, update_score
+from logic_utils import get_range_for_difficulty, get_attempt_limit, generate_secret, parse_guess, check_guess, update_score
 
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
@@ -15,13 +14,8 @@ difficulty = st.sidebar.selectbox(
     ["Easy", "Normal", "Hard"],
     index=1,
 )
-#Fix Me: The attempt limits are not consistent with the difficulty ranges. Adjusting them to be more balanced.
-attempt_limit_map = {
-    "Easy": 6,
-    "Normal": 8,
-    "Hard": 5,
-}
-attempt_limit = attempt_limit_map[difficulty]
+# Fix 4 & 9: attempt limits moved to get_attempt_limit() in logic_utils.py (Easy:10, Normal:8, Hard:5)
+attempt_limit = get_attempt_limit(difficulty)
 
 low, high = get_range_for_difficulty(difficulty)
 
@@ -29,10 +23,12 @@ st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
 
 if "secret" not in st.session_state:
-    st.session_state.secret = random.randint(low, high)
+    # Fix 9: generate_secret() moved to logic_utils.py; removed import random from app.py
+    st.session_state.secret = generate_secret(difficulty)
 
 if "attempts" not in st.session_state:
-    st.session_state.attempts = 1
+    # Fix 5: was initialized to 1, causing first submit to count as attempt 2
+    st.session_state.attempts = 0
 
 if "score" not in st.session_state:
     st.session_state.score = 0
@@ -45,8 +41,9 @@ if "history" not in st.session_state:
 
 st.subheader("Make a guess")
 
+# Fix 7: was hardcoded "between 1 and 100" regardless of difficulty
 st.info(
-    f"Guess a number between 1 and 100. "
+    f"Guess a number between {low} and {high}. "
     f"Attempts left: {attempt_limit - st.session_state.attempts}"
 )
 
@@ -72,7 +69,10 @@ with col3:
 
 if new_game:
     st.session_state.attempts = 0
-    st.session_state.secret = random.randint(1, 100)
+    st.session_state.secret = generate_secret(difficulty)
+    # Fix 6: new game previously left status as "won"/"lost", making the game unplayable
+    st.session_state.status = "playing"
+    st.session_state.history = []
     st.success("New game started.")
     st.rerun()
 
@@ -94,10 +94,8 @@ if submit:
     else:
         st.session_state.history.append(guess_int)
 
-        if st.session_state.attempts % 2 == 0:
-            secret = str(st.session_state.secret)
-        else:
-            secret = st.session_state.secret
+        # Fix 2: was converting secret to str on even attempts, breaking numeric comparison
+        secret = st.session_state.secret
 
         outcome, message = check_guess(guess_int, secret)
 

@@ -1,3 +1,6 @@
+import random
+
+
 def get_range_for_difficulty(difficulty: str):
     """Return (low, high) inclusive range for a given difficulty."""
     if difficulty == "Easy":
@@ -5,8 +8,20 @@ def get_range_for_difficulty(difficulty: str):
     if difficulty == "Normal":
         return 1, 100
     if difficulty == "Hard":
-        return 1, 50
+        return 1, 200  # Fix 3: was 1–50, which is easier than Normal's 1–100
     return 1, 100
+
+
+def get_attempt_limit(difficulty: str) -> int:
+    """Return the number of allowed attempts for a given difficulty."""
+    limits = {"Easy": 10, "Normal": 8, "Hard": 5}
+    return limits.get(difficulty, 8)
+
+
+def generate_secret(difficulty: str) -> int:
+    """Generate a random secret number for the given difficulty."""
+    low, high = get_range_for_difficulty(difficulty)
+    return random.randint(low, high)
 
 
 def parse_guess(raw: str):
@@ -42,10 +57,11 @@ def check_guess(guess, secret):
         return "Win", "🎉 Correct!"
 
     try:
+        # Fix 1: was returning "Go HIGHER!" when guess > secret and "Go LOWER!" when guess < secret — both backwards
         if guess > secret:
-            return "Too High", "📈 Go HIGHER!"
+            return "Too High", "📉 Go LOWER!"
         else:
-            return "Too Low", "📉 Go LOWER!"
+            return "Too Low", "📈 Go HIGHER!"
     except TypeError:
         g = str(guess)
         if g == secret:
