@@ -1,7 +1,11 @@
 import random
 import re
+from pathlib import Path
 
+from dotenv import load_dotenv
 import anthropic
+
+load_dotenv(Path(__file__).parent / ".env")
 
 client = anthropic.Anthropic()
 
